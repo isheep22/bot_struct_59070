@@ -25,10 +25,17 @@ async def register_handlers(bot: Bot):
 
     @bot.on.message()
     async def main_handler(message: Message):
-        # Игнорируем команды, начинающиеся с /
-        if message.text and message.text.startswith("/"):
+        # Приводим текст к нижнему регистру и убираем пробелы по краям
+        text = (message.text or "").lower().strip()
+
+        # Проверяем, не приветствие ли это
+        if text in bot_text.GREETING_WORDS:
+            logger.info(f"Пользователь {message.from_id} поздоровался: {text}")
+            await message.answer(bot_text.HELLO_MESSAGE, keyboard=get_main_keyboard())
             return
-        logger.info(f"Получено сообщение от {message.from_id}: {message.text[:50] if message.text else 'пусто'}")
+
+        # Если это не приветствие — отвечаем «не понял»
+        logger.info(f"Получено сообщение от {message.from_id}: {text[:50] if text else 'пусто'}")
         await message.answer(
             bot_text.UNKNOWN_MESSAGE,
             keyboard=get_main_keyboard()
